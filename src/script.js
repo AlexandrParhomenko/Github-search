@@ -3,8 +3,32 @@ const submitButton = document.querySelector('.form-btn');
 const results = document.querySelector('.result-list')
 const input = document.querySelector('input');
 const error = document.querySelector('.error')
+const items = document.querySelector('.result-list');
+const form = document.querySelector('.chatbox-form')
+const currentName = document.getElementById('name');
+const nameError = document.getElementById('error');
+
+
+function handleForm(event) { event.preventDefault(); }
+form.addEventListener('submit', handleForm);
+
+currentName.onblur = function () {
+  if (!currentName.value) {
+    currentName.classList.add('invalid');
+    nameError.style.display = 'flex';
+    nameError.innerHTML = 'Пожалуйста, введите запрос.'
+  }
+};
+
+currentName.onfocus = function () {
+  if (this.classList.contains('invalid')) {
+    this.classList.remove('invalid');
+    nameError.style.display = 'none';
+  }
+};
 
 async function getData() {
+  items.innerHTML = '';
   let url = `https://api.github.com/search/repositories?q=${search.value}`
   const res = await fetch(url);
   try {
@@ -31,20 +55,21 @@ async function getData() {
     const error = document.createElement('span')
     error.classList.add('error')
     error.textContent = 'Search has given no results :('
-    results.append(error)
+    if (items.innerHTML.length === 0) results.append(error)
     search.value = '';
-    setTimeout(() => error.remove(), 2000)
   }
-
-  //console.log(data)
-  //
+  console.log(items.innerHTML)
 }
 
 input.addEventListener('submit', function (e) {
   e.preventDefault();
 })
 
-submitButton.addEventListener('click', getData);
+submitButton.addEventListener('click', function () {
+  if (search.value) {
+    getData().then(r => r)
+  }
+});
 document.addEventListener('keydown', function (e) {
   if (e.key === 'Enter') {
     if (search.value) {
